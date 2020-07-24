@@ -1,28 +1,22 @@
 Name: dyninst
 License: LGPLv2+
-Release: 13
-Version: 9.3.2
+Release: 1
+Version: 10.1.0
 Summary: An API for Run-time Code Generation
 ExclusiveArch: x86_64
 
 %global dyninst_base dyninst-%{version}
-%global testsuite_base testsuite-9.3.0
+%global testsuite_base testsuite-%{version}
 
 URL: http://www.dyninst.org
 Source0: https://github.com/dyninst/dyninst/archive/v%{version}/dyninst-%{version}.tar.gz
-Source1: https://github.com/dyninst/testsuite/archive/v9.3.0/testsuite-9.3.0.tar.gz
-
-Patch1: testsuite-9.3.0-junit-nullptr.patch
-Patch2: addrtranslate-sysv.patch
-Patch3: Object-elf.patch
-Patch4: dyninst-9.3.2-gcc8.patch
-Patch5: dyninst-9.3.2-glibc-rpc.patch
+Source1: https://github.com/dyninst/testsuite/archive/v%{version}/testsuite-%{version}.tar.gz
 
 BuildRequires: cmake gcc-c++
 BuildRequires: binutils-devel boost-devel
 BuildRequires: elfutils-libelf-devel
-BuildRequires: libdwarf-devel >= 20111030
-BuildRequires: libtirpc-devel
+BuildRequires: elfutils-devel libxml2-devel
+BuildRequires: libtirpc-devel tbb tbb-devel
 
 BuildRequires: gcc-gfortran glibc-static libstdc++-static nasm
 
@@ -38,6 +32,7 @@ an executable file or library, known as static instrumentation.
 Summary: Header files, libraries and testsuite
 Requires: boost-devel glibc-static
 Requires: dyninst = %{version}-%{release}
+Requires: tbb-devel
 
 %description devel
 dyninst-devel includes the C header files and libraries.
@@ -52,17 +47,16 @@ dyninst-doc contains API documentation for the Dyninst libraries.
 %setup -q -n %{name}-%{version} -c
 %setup -q -T -D -a 1
 
-%patch1 -p0 -b.nullptr
-%patch2 -p0 -b.addrtrans
-%patch3 -p0 -b.objelf
-%patch4 -p1 -b.gcc8
-%patch5 -p1 -b.glibc-rpc
-
 sed -i.cotire -e 's/USE_COTIRE true/USE_COTIRE false/' \
   %{dyninst_base}/cmake/shared.cmake
 
 %build
 cd %{dyninst_base}
+
+CFLAGS="$CFLAGS $RPM_OPT_FLAGS"
+LDFLAGS="$LDFLAGS $RPM_LD_FLAGS"
+CXXFLAGS="$CFLAGS"
+export CFLAGS CXXFLAGS LDFLAGS
 
 %cmake \
  -DENABLE_STATIC_LIBS=1 \
@@ -70,19 +64,22 @@ cd %{dyninst_base}
  -DINSTALL_INCLUDE_DIR:PATH=%{_includedir}/dyninst \
  -DINSTALL_CMAKE_DIR:PATH=%{_libdir}/cmake/Dyninst \
  -DCMAKE_BUILD_TYPE=None \
- -DCMAKE_SKIP_RPATH:BOOL=YES
+ -DCMAKE_SKIP_RPATH:BOOL=YES \
+ .
 %make_build
 
 make DESTDIR=../install install
 find ../install -name '*.cmake' -execdir \
   sed -i -e 's!%{_prefix}!../install&!' '{}' '+'
+sed -i '/libtbb.so/ s/".*usr/"\/usr/' $PWD/../install%{_libdir}/cmake/Dyninst/commonTargets.cmake
 
 cd ../%{testsuite_base}
 %cmake \
  -DDyninst_DIR:PATH=$PWD/../install%{_libdir}/cmake/Dyninst \
  -DINSTALL_DIR:PATH=%{_libdir}/dyninst/testsuite \
  -DCMAKE_BUILD_TYPE:STRING=Debug \
- -DCMAKE_SKIP_RPATH:BOOL=YES
+ -DCMAKE_SKIP_RPATH:BOOL=YES \
+ .
 %make_build
 
 %install
@@ -104,6 +101,7 @@ find %{buildroot}%{_libdir}/dyninst/testsuite/ \
 %files
 %dir %{_libdir}/dyninst
 %{_libdir}/dyninst/*.so.*
+%{_libdir}/dyninst/libdyninstAPI_RT.so
 %config(noreplace) /etc/ld.so.conf.d/*
 
 %files devel
@@ -115,10 +113,16 @@ find %{buildroot}%{_libdir}/dyninst/testsuite/ \
 %dir %{_libdir}/dyninst/testsuite/
 %attr(755,root,root) %{_libdir}/dyninst/testsuite/*[!a]
 %attr(644,root,root) %{_libdir}/dyninst/testsuite/*.a
+%exclude %{_bindir}/cfg_to_dot
+%exclude /usr/bin/codeCoverage
+%exclude /usr/bin/unstrip
+%exclude /usr/bin/ddb.db
+%exclude /usr/bin/params.db
+%exclude /usr/bin/unistd.db
 
 %files help
 %doc %{dyninst_base}/COPYRIGHT
-%doc %{dyninst_base}/LGPL
+%doc %{dyninst_base}/LICENSE.md
 %doc %{dyninst_base}/dataflowAPI/doc/dataflowAPI.pdf
 %doc %{dyninst_base}/dynC_API/doc/dynC_API.pdf
 %doc %{dyninst_base}/dyninstAPI/doc/dyninstAPI.pdf
@@ -130,5 +134,8 @@ find %{buildroot}%{_libdir}/dyninst/testsuite/ \
 %doc %{dyninst_base}/symtabAPI/doc/symtabAPI.pdf
 
 %changelog
+* Thu Jul 23 2020 jinzhimin <jinzhimin2@huawei.com> - 10.1.0-1
+- update to 10.1.0
+
 * Mon Feb 24 2020 openEuler Buildteam <buildteam@openeuler.org> - 9.3.2-13
 - Package init
