@@ -1,20 +1,17 @@
 Name: dyninst
 License: LGPLv2+
 Release: 1
-Version: 10.2.1
+Version: 11.0.1
 Summary: An API for Run-time Code Generation
 ExclusiveArch: x86_64 aarch64
 
 %global dyninst_base dyninst-%{version}
-%global testsuite_version 10.1.0
+%global testsuite_version 11.0.1
 %global testsuite_base testsuite-%{testsuite_version}
 
 URL: http://www.dyninst.org
 Source0: https://github.com/dyninst/dyninst/archive/v%{version}/dyninst-%{version}.tar.gz
 Source1: https://github.com/dyninst/testsuite/archive/v%{testsuite_version}/%{testsuite_base}.tar.gz
-
-Patch0:  testsuite-10.1.0-gettid.patch
-Patch1:  testsuite-10.1.0-throw.patch
 
 BuildRequires: cmake gcc-c++
 BuildRequires: binutils-devel boost-devel
@@ -50,9 +47,6 @@ dyninst-doc contains API documentation for the Dyninst libraries.
 %prep
 %setup -q -n %{name}-%{version} -c
 %setup -q -T -D -a 1
-
-%patch0 -p1 -b.gettid
-%patch1 -p1 -b .throw
 
 sed -i.cotire -e 's/USE_COTIRE true/USE_COTIRE false/' \
   %{dyninst_base}/cmake/shared.cmake
@@ -141,6 +135,9 @@ find %{buildroot}%{_libdir}/dyninst/testsuite/ \
 %doc %{dyninst_base}/symtabAPI/doc/symtabAPI.pdf
 
 %changelog
+* Sat Dec 4 2021 zhouwenpei <zhouwenpei1@huawei.com> - 11.0.1-1
+- update to 11.0.1
+
 * Sat Jan 30 2021 xinghe <xinghe1@huawei.com> - 10.2.1-1
 - update to 10.2.1
 
