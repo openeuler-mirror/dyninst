@@ -1,6 +1,6 @@
 Name: dyninst
 License: LGPLv2+
-Release: 1
+Release: 2
 Version: 11.0.1
 Summary: An API for Run-time Code Generation
 ExclusiveArch: x86_64 aarch64
@@ -135,6 +135,9 @@ find %{buildroot}%{_libdir}/dyninst/testsuite/ \
 %doc %{dyninst_base}/symtabAPI/doc/symtabAPI.pdf
 
 %changelog
+* Mon Oct 25 2022 yaowenbin <yaowenbin1@huawei.com> - 11.0.1-2
+- update to release 2
+
 * Sat Dec 4 2021 zhouwenpei <zhouwenpei1@huawei.com> - 11.0.1-1
 - update to 11.0.1
 
