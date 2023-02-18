@@ -1,0 +1,28 @@
+From 2e3bf92eedf575c780e4381ae810a050ee404f03 Mon Sep 17 00:00:00 2001
+From: kupsch <kupsch@cs.wisc.edu>
+Date: Thu, 5 Jan 2023 13:13:14 -0600
+Subject: [PATCH] add missing include file (#1344)
+
+- add missing #include <deque>
+
+  On more platforms and library combinations <deque> is included via
+  some other header, but there is combination where this is not true
+---
+ dataflowAPI/src/AbslocInterface.C | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dataflowAPI/src/AbslocInterface.C b/dataflowAPI/src/AbslocInterface.C
+index 9d7ad000c..582e64004 100644
+--- a/dataflowAPI/src/AbslocInterface.C
++++ b/dataflowAPI/src/AbslocInterface.C
+@@ -29,6 +29,7 @@
+  */
+ 
+ 
++#include <deque>
+ #include "Absloc.h"
+ #include "AbslocInterface.h"
+ 
+-- 
+2.33.0
+

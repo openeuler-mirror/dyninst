@@ -1,6 +1,6 @@
 Name: dyninst
 License: LGPLv2+
-Release: 1
+Release: 2
 Version: 12.2.1
 Summary: An API for Run-time Code Generation
 ExclusiveArch: x86_64 aarch64
@@ -12,6 +12,8 @@ ExclusiveArch: x86_64 aarch64
 URL: http://www.dyninst.org
 Source0: https://github.com/dyninst/dyninst/archive/v%{version}/dyninst-%{version}.tar.gz
 Source1: https://github.com/dyninst/testsuite/archive/v%{testsuite_version}/%{testsuite_base}.tar.gz
+
+Patch1: 0001-add-missing-include-file-1344.patch 
 
 BuildRequires: cmake gcc-c++
 BuildRequires: binutils-devel boost-devel
@@ -47,6 +49,10 @@ dyninst-doc contains API documentation for the Dyninst libraries.
 %prep
 %setup -q -n %{name}-%{version} -c
 %setup -q -T -D -a 1
+
+pushd %{dyninst_base}
+%patch1 -p1
+popd
 
 sed -i.cotire -e 's/USE_COTIRE true/USE_COTIRE false/' \
   %{dyninst_base}/cmake/shared.cmake
@@ -134,6 +140,9 @@ find %{buildroot}%{_libdir}/dyninst/testsuite/ \
 %doc %{dyninst_base}/symtabAPI/doc/symtabAPI.pdf
 
 %changelog
+* Mon Feb 13 2023 Wenyu Liu <liuwenyu7@huawei.com> - 12.2.1-2
+- add missing #include <deque>
+
 * Sun Jan 29 2023 Wenyu Liu <liuwenyu7@huawei.com> - 12.2.1-1
 - update to 12.2.1
 
