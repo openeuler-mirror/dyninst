@@ -1,6 +1,6 @@
 Name: dyninst
 License: LGPLv2+
-Release: 2
+Release: 3
 Version: 12.2.1
 Summary: An API for Run-time Code Generation
 ExclusiveArch: x86_64 aarch64
@@ -80,26 +80,12 @@ find ../install -name '*.cmake' -execdir \
   sed -i -e 's!%{_prefix}!../install&!' '{}' '+'
 sed -i '/libtbb.so/ s/".*usr/"\/usr/' $PWD/../install%{_libdir}/cmake/Dyninst/commonTargets.cmake
 
-cd ../%{testsuite_base}
-%cmake \
- -DDyninst_DIR:PATH=$PWD/../install%{_libdir}/cmake/Dyninst \
- -DINSTALL_DIR:PATH=%{_libdir}/dyninst/testsuite \
- -DCMAKE_BUILD_TYPE:STRING=Debug \
- -DCMAKE_SKIP_RPATH:BOOL=YES \
- .
-%make_build
-
 %install
 cd %{dyninst_base}
 %make_install
 
-cd ../%{testsuite_base}
-%make_install
-
 mkdir -p %{buildroot}/etc/ld.so.conf.d
 echo "%{_libdir}/dyninst" > %{buildroot}/etc/ld.so.conf.d/%{name}-%{_arch}.conf
-find %{buildroot}%{_libdir}/dyninst/testsuite/ \
-  -type f '!' -name '*.a' -execdir chmod 644 '{}' '+'
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
@@ -116,9 +102,6 @@ find %{buildroot}%{_libdir}/dyninst/testsuite/ \
 %{_libdir}/cmake/Dyninst
 %{_libdir}/dyninst/*.a
 %{_bindir}/parseThat
-%dir %{_libdir}/dyninst/testsuite/
-%attr(755,root,root) %{_libdir}/dyninst/testsuite/*[!a]
-%attr(644,root,root) %{_libdir}/dyninst/testsuite/*.a
 %exclude %{_bindir}/cfg_to_dot
 %exclude /usr/bin/codeCoverage
 %exclude /usr/bin/unstrip
@@ -140,6 +123,9 @@ find %{buildroot}%{_libdir}/dyninst/testsuite/ \
 %doc %{dyninst_base}/symtabAPI/doc/symtabAPI.pdf
 
 %changelog
+* Wed Mar 8 2023 Wenyu Liu <liuwenyu7@huawei.com> - 12.2.1-3
+- remove useless testsuitte in devel package
+
 * Mon Feb 13 2023 Wenyu Liu <liuwenyu7@huawei.com> - 12.2.1-2
 - add missing #include <deque>
 
