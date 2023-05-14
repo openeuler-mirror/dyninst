@@ -1,6 +1,6 @@
 Name: dyninst
 License: LGPLv2+
-Release: 3
+Release: 4
 Version: 12.2.1
 Summary: An API for Run-time Code Generation
 ExclusiveArch: x86_64 aarch64
@@ -14,6 +14,7 @@ Source0: https://github.com/dyninst/dyninst/archive/v%{version}/dyninst-%{versio
 Source1: https://github.com/dyninst/testsuite/archive/v%{testsuite_version}/%{testsuite_base}.tar.gz
 
 Patch1: 0001-add-missing-include-file-1344.patch 
+Patch2: 0002-fix-openmp-error.patch
 
 BuildRequires: cmake gcc-c++
 BuildRequires: binutils-devel boost-devel
@@ -52,6 +53,7 @@ dyninst-doc contains API documentation for the Dyninst libraries.
 
 pushd %{dyninst_base}
 %patch1 -p1
+%patch2 -p1
 popd
 
 sed -i.cotire -e 's/USE_COTIRE true/USE_COTIRE false/' \
@@ -123,6 +125,9 @@ echo "%{_libdir}/dyninst" > %{buildroot}/etc/ld.so.conf.d/%{name}-%{_arch}.conf
 %doc %{dyninst_base}/symtabAPI/doc/symtabAPI.pdf
 
 %changelog
+* Wed May 10 2023 Xiaoya Huang <huangxiaoya@iscas.ac.cn> - 12.2.1-4
+- Fix OpenMP error
+
 * Wed Mar 8 2023 Wenyu Liu <liuwenyu7@huawei.com> - 12.2.1-3
 - remove useless testsuitte in devel package
 
